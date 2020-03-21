@@ -12,18 +12,12 @@ def update_password():
     # connecting to database
     conn = sqlite3.connect(path)
     c = conn.cursor()
-    c.execute("SELECT *, oid  FROM username")
-    records = c.fetchall()
-
-    for record in records:
-        if record[1] == old_pass:
-            id = record[2]
 
     conn.execute("""UPDATE username set password = :new_pass
-     where oid = :oid""",
+     where password = :old_password""",
                  {
-                     'new_pass':new_pass,
-                     'oid':id
+                     'new_pass': new_pass,
+                     'old_password': old_pass
                  })
 
     conn.commit()
@@ -51,6 +45,7 @@ def cp_f():
         update_password()
         # clearing user and password list to avoid problems
         user_list.clear()
+        password_list.clear()
         password_list.clear()
 
         lb1 = Label(fr2, text="Password has been changed successfully", fg="green", font=("arial black", 30))
@@ -183,7 +178,7 @@ def upload_i():
         head, tail = os.path.split(window.filename)
         n_i.delete(0, END)
         n_i.insert(0, tail)
-        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/images')
+        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/Uploads/images')
         img = ImageTk.PhotoImage(Image.open(window.filename))
         label = Label(window, image=img)
         label.place(x=950, y=250, width = 500, height= 400)
@@ -198,7 +193,7 @@ def upload_v():
         head, tail = os.path.split(window.filename)
         n_v.delete(0, END)
         n_v.insert(0, tail)
-        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/videos')
+        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/Uploads/videos')
 
 
 # function to upload a pdf
@@ -210,14 +205,14 @@ def upload_pdf():
         head, tail = os.path.split(window.filename)
         n_p.delete(0, END)
         n_p.insert(0, tail)
-        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/pdf')
+        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/Uploads/pdf')
 
 
 # function to upload a text
 def upload_text():
     circular = t_t.get("1.0", END)
     t_t.delete("1.0", END)
-    file1 = open(r"C:/xampp/htdocs/Project/Assets/circular.txt", "r+")
+    file1 = open(r"C:/xampp/htdocs/Project/Assets/Uploads/circular.txt", "r+")
     file1.truncate(0)
     file1.write(circular)
     file1.close()
@@ -421,11 +416,59 @@ def flag(key):
     conn.close()
 
 
+def get_admin():
+    # connecting to database
+    conn = sqlite3.connect(path)
+    c = conn.cursor()
+    c.execute("SELECT *, oid  FROM admin")
+    records = c.fetchall()
+
+    for record in records:
+        admin_list.append(record[0])
+
+    conn.commit()
+    conn.close()
+    return
+
+
+def add_admin(admin_name):
+    # connecting to database
+    conn = sqlite3.connect(path)
+    c = conn.cursor()
+
+    c.execute("INSERT INTO admin VALUES (:name)",
+              {
+                  'name': admin_name
+              })
+
+    conn.commit()
+    conn.close()
+    return
+
+
+def remove_admin(admin_name):
+    # connecting to database
+    conn = sqlite3.connect(path)
+    c = conn.cursor()
+    c.execute("SELECT *, oid  FROM admin")
+    records = c.fetchall()
+
+    conn.execute("""DELETE FROM admin
+        where name = :name""",
+                 {
+                     'name': admin_name
+                 })
+
+    conn.commit()
+    conn.close()
+    return
+
+
 def control():
     fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
     fr2.place(x=1, y=1)
 
-    lb1 = Label(fr2, text="Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+    lb1 = Label(fr2, text=" Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
                 width=70, height=2)
     lb1.place(x=1, y=10)
     lb1.configure(bg="dark blue")
@@ -438,21 +481,191 @@ def control():
     lb3.place(x=100, y=270)
     lb3.configure(bg="white", fg= "Blue")
 
-    b3 = Button(fr2, text="Image", font=("Arial ", 20), width=20, command = lambda :flag('image'))
+    b3 = Button(fr2, text="Image", font=("Arial ", 20), width=20, command=lambda: flag('image'))
     b3.place(x=100, y=400)
     b3.configure(bg="white")
 
-    b2 = Button(fr2, text="Video", font=("Arial ", 20), width=20, command = lambda :flag('video'))
+    b2 = Button(fr2, text="Video", font=("Arial ", 20), width=20, command=lambda: flag('video'))
     b2.place(x=600, y=400)
     b2.configure(bg="white")
 
-    b1 = Button(fr2, text="Default", font=("Arial ", 20), width=20, command= lambda :flag('original'))
+    b1 = Button(fr2, text="Default", font=("Arial ", 20), width=20, command=lambda: flag('original'))
     b1.place(x=100, y=550)
     b1.configure(bg="white")
 
     b4 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
     b4.place(x=600, y=550)
     b4.configure(bg="white")
+
+
+def allow_privileges():
+    admin_name = entry.get()
+    entry.delete(0, END)
+
+    user_login()
+    get_admin()
+
+    if check(user_list, admin_name):
+        if  not check(admin_list, admin_name):
+            add_admin(admin_name)
+
+            lb3 = Label(window, text="Granted privileges", font=("TimesNewRoman", 30))
+            lb3.place(x=100, y=700)
+            lb3.configure(bg="white", fg="Blue")
+
+        else:
+            lb3 = Label(window, text="User already has admin privileges", font=("TimesNewRoman", 30))
+            lb3.place(x=100, y=700)
+            lb3.configure(bg="white", fg="Blue")
+
+    else:
+        lb3 = Label(window, text="No user found", font=("TimesNewRoman", 30))
+        lb3.place(x=100, y=700)
+        lb3.configure(bg="white", fg="Blue")
+
+    user_list.clear()
+    password_list.clear()
+    admin_list.clear()
+
+
+def revoke_privileges():
+    admin_name = entry.get()
+    entry.delete(0, END)
+
+    if admin_name == 'v':
+        lb3 = Label(window, text="Cannot remove privileges for default user", font=("TimesNewRoman", 30))
+        lb3.place(x=100, y=700)
+        lb3.configure(bg="white")
+
+        return
+
+    user_login()
+    get_admin()
+
+    if check(user_list, admin_name):
+        if check(admin_list, admin_name):
+            remove_admin(admin_name)
+
+            lb3 = Label(window, text="Revoked privileges", font=("TimesNewRoman", 30))
+            lb3.place(x=100, y=700)
+            lb3.configure(bg="white")
+
+        else:
+            lb3 = Label(window, text="User does not have admin privileges", font=("TimesNewRoman", 30))
+            lb3.place(x=100, y=700)
+            lb3.configure(bg="white")
+
+    else:
+        lb3 = Label(window, text="No user found", font=("TimesNewRoman", 30))
+        lb3.place(x=100, y=700)
+        lb3.configure(bg="white", fg="Blue")
+
+    user_list.clear()
+    password_list.clear()
+    admin_list.clear()
+
+
+def remove_from_user(user_name):
+    # connecting to database
+    conn = sqlite3.connect(path)
+    c = conn.cursor()
+
+    c.execute("""DELETE FROM username
+           where name = :name""",
+                 {
+                     'name': user_name
+                 })
+
+    conn.commit()
+    conn.close()
+
+
+def remove_user():
+    remove_name = entry.get()
+    entry.delete(0, END)
+    if remove_name == 'v':
+        lb3 = Label(window, text=" Cannot remove default user ", font=("TimesNewRoman", 30))
+        lb3.place(x=100, y=700)
+        lb3.configure(bg="white")
+
+        return
+
+    user_login()
+    get_admin()
+
+    if check(user_list, remove_name):
+        if check(admin_list, remove_name):
+            remove_admin(remove_name)
+            remove_from_user(remove_name)
+
+            lb3 = Label(window, text="User Removed", font=("TimesNewRoman", 30))
+            lb3.place(x=100, y=700)
+            lb3.configure(bg="white")
+
+        else:
+            remove_from_user(remove_name)
+
+            lb3 = Label(window, text="User Removed", font=("TimesNewRoman", 30))
+            lb3.place(x=100, y=700)
+            lb3.configure(bg="white")
+
+    else:
+        lb3 = Label(window, text="No user found", font=("TimesNewRoman", 30))
+        lb3.place(x=100, y=700)
+        lb3.configure(bg="white", fg="Blue")
+
+    user_list.clear()
+    password_list.clear()
+    admin_list.clear()
+
+
+def manage_users():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text=" Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    lb3 = Label(fr2, text=" Manage Users ", font=("TimesNewRoman", 30))
+    lb3.place(x=100, y=220)
+    lb3.configure(bg="white", fg="Blue")
+
+    b3 = Button(fr2, text="Add user", font=("Arial ", 20), width=20, command=signup)
+    b3.place(x=100, y=320)
+    b3.configure(bg = "white")
+
+    lb4 = Label(fr2, text=" Enter User", font=("TimesNewRoman", 22))
+    lb4.place(x=100, y=420)
+    lb4.configure(bg="white")
+
+    global entry
+
+    entry = Entry(fr2, fg="black", font=("arial", 20), relief='solid')
+    entry.place(x=300, y=420)
+
+    b4 = Button(fr2, text="Allow Admin Privileges ", font=("Arial ", 20), width=20, command=allow_privileges)
+    b4.place(x=100, y=480)
+    b4.configure(bg = "white")
+
+    b5 = Button(fr2, text="Provoke Admin Privileges", font=("Arial ", 20), width=20, command=revoke_privileges)
+    b5.place(x=500, y=480)
+    b5.configure(bg = "white")
+
+    b7 = Button(fr2, text="Remove user", font=("Arial ", 20), width=20, command=remove_user)
+    b7.place(x=900, y=480)
+    b7.configure(bg="white")
+
+    b6 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b6.place(x=600, y=600)
+    b6.configure(bg="white")
+
+    return
 
 
 # function to main screen after login
@@ -469,11 +682,11 @@ def main_screen():
                 width=70, height=2)
     lb2.place(x=1, y=100)
 
-    lb3 =Label(fr2, text = "News Bulletin ", font=("Algerian", 26))
+    lb3 = Label(fr2, text = "News Bulletin ", font=("Algerian", 26))
     lb3.place(x=40,y=230)
     lb3.configure(bg="white")
 
-    lb4 =Label(fr2, text = "Project 2020", font=("Algerian", 24))
+    lb4 = Label(fr2, text = "Project 2020", font=("Algerian", 24))
     lb4.place(x=700,y=230)
     lb4.configure(bg="white")
 
@@ -500,6 +713,13 @@ def main_screen():
     b8 = Button(fr2, text="Control", font=("Arial ", 20), width=20, command=control)
     b8.place(x=1100, y=400)
     b8.configure(bg = "white")
+
+    get_admin()
+
+    if check(admin_list, Login_Name):
+        b9 = Button(fr2, text="Manage Users", font=("Arial ", 20), width=20, command=manage_users)
+        b9.place(x=1100, y=550)
+        b9.configure(bg = "white")
 
     b2 = Button(fr2, text="logout", fg='white', font=("Arial ", 20), width=20, command=home)
     b2.place(x=1040, y=750)
@@ -550,6 +770,8 @@ def user_login():
 
 # function to login to main screen[backend]
 def Login_f():
+    global Login_Name
+
     Login_Name = field4.get()
     Login_password = field5.get()
 
@@ -584,6 +806,8 @@ def signup_f():
     fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
     fr2.place(x=1, y=1)
 
+    user_login()
+
     if password != confirm_password:
         lb3 = Label(fr2, text="User Registration failed", fg="red", font=("arial black", 30))
         lb3.place(x=600, y=20)
@@ -617,6 +841,25 @@ def signup_f():
         b1 = Button(fr2, text="Retry", font=("Arial ", 20), width=20, command=signup)
         b1.place(x=640, y=300)
 
+    elif check(user_list, Name):
+        lb3 = Label(fr2, text="User Registration failed", fg="red", font=("arial black", 30))
+        lb3.place(x=600, y=20)
+        lb3.configure(bg="white")
+
+        lb4 = Label(fr2, text="Select an unique Username", fg="black", font=("arial black", 30))
+        lb4.place(x=600, y=100)
+        lb4.configure(bg="white")
+
+        lb5 = Label(fr2, text="Please try again", fg="black", font=("arial black", 30))
+        lb5.place(x=600, y=180)
+        lb5.configure(bg="white")
+
+        user_list.clear()
+        password_list.clear()
+
+        b1 = Button(fr2, text="Retry", font=("Arial ", 20), width=20, command=signup)
+        b1.place(x=640, y=300)
+
     else:
         lb3 = Label(fr2, text="User registered", fg="Green", font=("arial black", 30))
         lb3.place(x=640, y=20)
@@ -626,10 +869,13 @@ def signup_f():
         lb4.place(x=600, y=100)
         lb4.configure(bg="white")
 
+        user_register()
+
         b1 = Button(fr2, text="Login", font=("Arial ", 20), width=20, command=Login)
         b1.place(x=640, y=300)
 
-        user_register()
+        b2 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+        b2.place(x=640, y=400)
 
 
 # Creating signup screen [GUI]
@@ -669,7 +915,7 @@ def signup():
     b3 = Button(fr2, text="Submit", font=("Arial ", 10), relief='solid', width=26, command=signup_f)
     b3.place(x=640, y=400)
 
-    b4 = Button(fr2, text="home", fg='white', font=("Arial ", 20), width=15, command=home)
+    b4 = Button(fr2, text="Back", fg='white', font=("Arial ", 20), width=15, command=manage_users)
     b4.place(x=640, y=600)
     b4.configure(bg="green")
 
@@ -737,7 +983,7 @@ def home():
     b1.place(x=100, y=600)
     b1.configure(bg="green")
 
-    b2 = Button(fr, text="Signup", fg='white', font=("Arial ", 20), width=15, command=signup)
+    b2 = Button(fr, text="About", fg='white', font=("Arial ", 20), width=15, command=about)
     b2.place(x=600, y=600)
     b2.configure(bg="green")
 
@@ -756,6 +1002,7 @@ window.iconbitmap('download.ico')
 # globalizing list to store username and password for easy access
 global user_list
 global password_list
+global admin_list
 
 global path
 
@@ -763,6 +1010,8 @@ path = 'C:/xampp/htdocs/Project/project2.db'
 
 user_list = []
 password_list = []
+admin_list = []
+
 # displaying home screen at start
 home()
 
