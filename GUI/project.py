@@ -113,97 +113,110 @@ def change_password():
     b4.place(x=640, y=700)
 
 
-# function to upload an image
-def upload_i():
-    root = Tk()
+def upload_p():
+    name = n_p.get()
+    n_p.delete(0, END)
 
-    root.filename = filedialog.askopenfilename(initialdir="F:/major_project/GUI", title="Choose a file",
-                                         filetypes=[("png files", "*.png"),("jpg files", "*.jpg"), ("jpeg files", "*.jpeg"), ("all files", "*.*")])
-    if root.filename:
-        shutil.copy(root.filename, 'C:/xampp/htdocs/Project/Assets/images')
-        head, tail = os.path.split(root.filename)
-        upload_t('image_name', tail)
-
-    root.destroy()
-
-
-# function to upload a video
-def upload_v():
-    root = Tk()
-
-    root.filename = filedialog.askopenfilename(initialdir="F:/major_project/GUI", title="Choose a file",
-                                         filetypes=[("mp4 files", "*.mp4"), ("all files", "*.*")])
-    if root.filename:
-        shutil.copy(root.filename, 'C:/xampp/htdocs/Project/Assets/videos')
-        head, tail = os.path.split(root.filename)
-        upload_t('video_name', tail)
-        """video_address.append(root.filename)
-        video_flag.append('True')
-        print('lalalal')"""
-
-    root.destroy()
-
-
-# function to upload a pdf
-def upload_pdf():
-    root = Tk()
-
-    root.filename = filedialog.askopenfilename(initialdir="F:/major_project/GUI", title="Choose a file",
-                                         filetypes=[("pdf files", "*.pdf"), ("all files", "*.*")])
-    if root.filename:
-        shutil.copy(root.filename, 'C:/xampp/htdocs/Project/Assets/pdf')
-        head, tail = os.path.split(root.filename)
-        upload_t('pdf_name', tail)
-
-    root.destroy()
-
-
-# function to upload data to database
-def upload_t(column_name, data):
-    empty = ''
+    # connecting to database
     conn = sqlite3.connect(path)
     c = conn.cursor()
-    if column_name == 'video_name':
-        c.execute("INSERT INTO notification VALUES (:circular, :image_name, :video_name, :pdf_name)",
-                  {
-                      'circular': empty,
-                      'image_name': empty,
-                      'video_name': data,
-                      'pdf_name': empty
-                  })
-    elif column_name == 'image_name':
-        c.execute("INSERT INTO notification VALUES (:circular, :image_name, :video_name, :pdf_name)",
-                  {
-                      'circular': empty,
-                      'image_name': data,
-                      'video_name': empty,
-                      'pdf_name': empty
-                  })
-    elif column_name == 'circular':
-        c.execute("INSERT INTO notification VALUES (:circular, :image_name, :video_name, :pdf_name)",
-                  {
-                      'circular': data,
-                      'image_name': empty,
-                      'video_name': empty,
-                      'pdf_name': empty
-                  })
-    else:
-        c.execute("INSERT INTO notification VALUES (:circular, :image_name, :video_name, :pdf_name)",
-                  {
-                      'circular': empty,
-                      'image_name': empty,
-                      'video_name': empty,
-                      'pdf_name': data
-                  })
+
+    c.execute("INSERT INTO pdf VALUES (:name)",
+              {
+                  'name': name
+              })
 
     conn.commit()
     conn.close()
 
 
+def upload_vi():
+    name = n_v.get()
+    n_v.delete(0, END)
+    des = t_v.get("1.0", END)
+    t_v.delete("1.0", END)
+
+    # connecting to database
+    conn = sqlite3.connect(path)
+    c = conn.cursor()
+
+    c.execute("INSERT INTO video VALUES (:name, :des)",
+              {
+                  'name': name,
+                  'des' : des
+              })
+
+    conn.commit()
+    conn.close()
+
+
+def upload_im():
+    name = n_i.get()
+    des = t_i.get("1.0", END)
+    n_i.delete(0, END)
+    t_i.delete("1.0", END)
+    label.destroy()
+
+    # connecting to database
+    conn = sqlite3.connect(path)
+    c = conn.cursor()
+
+    c.execute("INSERT INTO image VALUES (:name, :description)",
+              {
+                  'name': name,
+                  'description': des
+              })
+
+    conn.commit()
+    conn.close()
+
+
+# function to upload an image
+def upload_i():
+    global img
+    global label
+    window.filename = filedialog.askopenfilename(initialdir="F:/major_project/GUI", title="Choose a file",
+                                               filetypes=[("png files", "*.png"), ("jpg files", "*.jpg"),
+                                                          ("jpeg files", "*.jpeg"), ("all files", "*.*")])
+
+    if window.filename:
+        head, tail = os.path.split(window.filename)
+        n_i.delete(0, END)
+        n_i.insert(0, tail)
+        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/images')
+        img = ImageTk.PhotoImage(Image.open(window.filename))
+        label = Label(window, image=img)
+        label.place(x=950, y=250, width = 500, height= 400)
+
+
+# function to upload a video
+def upload_v():
+    window.filename = filedialog.askopenfilename(initialdir="F:/major_project/GUI", title="Choose a file",
+                                               filetypes=[("mp4 files", "*.mp4"), ("all files", "*.*")])
+
+    if window.filename:
+        head, tail = os.path.split(window.filename)
+        n_v.delete(0, END)
+        n_v.insert(0, tail)
+        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/videos')
+
+
+# function to upload a pdf
+def upload_pdf():
+    window.filename = filedialog.askopenfilename(initialdir="F:/major_project/GUI", title="Choose a file",
+                                                 filetypes=[("pdf files", "*.pdf"), ("all files", "*.*")])
+
+    if window.filename:
+        head, tail = os.path.split(window.filename)
+        n_p.delete(0, END)
+        n_p.insert(0, tail)
+        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/pdf')
+
+
 # function to upload a text
 def upload_text():
-    circular = field5.get("1.0", END)
-    field5.delete("1.0", END)
+    circular = t_t.get("1.0", END)
+    t_t.delete("1.0", END)
     file1 = open(r"C:/xampp/htdocs/Project/Assets/circular.txt", "r+")
     file1.truncate(0)
     file1.write(circular)
@@ -228,6 +241,220 @@ def isBlank (myString):
     return not (myString and myString.strip())
 
 
+def image():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text="Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    b1 = Button(fr2, text="Choose File", font=("Arial ", 20), width=20, command=upload_i)
+    b1.place(x=100, y=250)
+    b1.configure(bg="white")
+
+    global n_i
+    global t_i
+
+    lb3 = Label(fr2, text="Name", font=("TimesNewRoman", 18))
+    lb3.place(x=150, y=350)
+    lb3.configure(bg = "white")
+
+    n_i = Entry(fr2, fg="black", font=("arial", 20))
+    n_i.place(x=250,y=350)
+
+    lb4 = Label(fr2, text="Description", font=("TimesNewRoman", 18))
+    lb4.place(x=100, y=450)
+    lb4.configure(bg = "white")
+
+    t_i = Text(fr2, font= ("TimesNewRoman", 18))
+    t_i.place(x=250,y=450, height=150, width =600)
+
+    b2 = Button(fr2, text="Submit", font=("Arial ", 20), width=20, command=upload_im)
+    b2.place(x=100, y=700)
+    b2.configure(bg="white")
+
+    b3 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b3.place(x=900, y=700)
+    b3.configure(bg="green")
+
+
+def video():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text="Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    b1 = Button(fr2, text="Choose File", font=("Arial ", 20), width=20, command=upload_v)
+    b1.place(x=100, y=250)
+    b1.configure(bg="white")
+
+    global n_v
+    global t_v
+
+    lb3 = Label(fr2, text="Name", font=("TimesNewRoman", 18))
+    lb3.place(x=150, y=350)
+    lb3.configure(bg = "white")
+
+    n_v = Entry(fr2, fg="black", font=("arial", 20))
+    n_v.place(x=250,y=350)
+
+    lb4 = Label(fr2, text="Description", font=("TimesNewRoman", 18))
+    lb4.place(x=100, y=450)
+    lb4.configure(bg="white")
+
+    t_v = Text(fr2, font=("TimesNewRoman", 18))
+    t_v.place(x=250, y=450, height=150, width=600)
+
+    b2 = Button(fr2, text="Submit", font=("Arial ", 20), width=20, command=upload_vi)
+    b2.place(x=100, y=700)
+    b2.configure(bg="white")
+
+    b3 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b3.place(x=900, y=700)
+    b3.configure(bg="green")
+
+
+def pdf():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text="Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    b1 = Button(fr2, text="Choose File", font=("Arial ", 20), width=20, command=upload_pdf)
+    b1.place(x=100, y=250)
+    b1.configure(bg="white")
+
+    global n_p
+
+    lb3 = Label(fr2, text="Name", font=("TimesNewRoman", 18))
+    lb3.place(x=150, y=350)
+    lb3.configure(bg="white")
+
+    n_p = Entry(fr2, fg="black", font=("arial", 20))
+    n_p.place(x=250, y=350)
+
+    b2 = Button(fr2, text="Submit", font=("Arial ", 20), width=20, command=upload_p)
+    b2.place(x=100, y=700)
+    b2.configure(bg="white")
+
+    b3 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b3.place(x=900, y=700)
+    b3.configure(bg="green")
+
+
+def text():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text="Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    lb4 = Label(fr2, text="Flash News", font=("TimesNewRoman", 26))
+    lb4.place(x=100, y=250)
+    lb4.configure(bg="white")
+
+    global t_t
+
+    t_t = Text(fr2, font=("TimesNewRoman", 20))
+    t_t.place(x=100, y=300, height=370, width=600)
+
+    b2 = Button(fr2, text="Submit", font=("Arial ", 20), width=20, command=upload_text)
+    b2.place(x=100, y=700)
+    b2.configure(bg="white")
+
+    b3 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b3.place(x=900, y=700)
+    b3.configure(bg="green")
+
+
+def about():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text="Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+
+def flag(key):
+    # connecting to database
+    conn = sqlite3.connect(path)
+    c = conn.cursor()
+
+    c.execute("INSERT INTO flag VALUES (:status)",
+              {
+                  'status' : key
+              })
+
+    conn.commit()
+    conn.close()
+
+
+def control():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text="Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    lb3 = Label(fr2, text=" Control Panel ", font=("TimesNewRoman", 30))
+    lb3.place(x=100, y=270)
+    lb3.configure(bg="white", fg= "Blue")
+
+    b3 = Button(fr2, text="Image", font=("Arial ", 20), width=20, command = lambda :flag('image'))
+    b3.place(x=100, y=400)
+    b3.configure(bg="white")
+
+    b2 = Button(fr2, text="Video", font=("Arial ", 20), width=20, command = lambda :flag('video'))
+    b2.place(x=600, y=400)
+    b2.configure(bg="white")
+
+    b1 = Button(fr2, text="Default", font=("Arial ", 20), width=20, command= lambda :flag('original'))
+    b1.place(x=100, y=550)
+    b1.configure(bg="white")
+
+    b4 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b4.place(x=600, y=550)
+    b4.configure(bg="white")
+
+
 # function to main screen after login
 def main_screen():
     fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
@@ -242,34 +469,45 @@ def main_screen():
                 width=70, height=2)
     lb2.place(x=1, y=100)
 
-    b3 = Button(fr2, text="Upload image", font=("Arial ", 20), width=20, command=upload_i)
-    b3.place(x=40, y=250)
-
-    b4 = Button(fr2, text="Upload video", font=("Arial ", 20), width=20, command=upload_v)
-    b4.place(x=40, y=350)
-
-    b7 = Button(fr2, text="Upload PDF", font=("Arial ", 20), width=20, command=upload_pdf)
-    b7.place(x=400, y=250)
-
-    global field5
-
-    lb3 = Label(fr2, text="Text Circular", fg="black", font=("Times New Roman", 25))
-    lb3.place(x=60, y=425)
+    lb3 =Label(fr2, text = "News Bulletin ", font=("Algerian", 26))
+    lb3.place(x=40,y=230)
     lb3.configure(bg="white")
 
-    field5 = Text(fr2)
-    field5.place(x=40, y=500, height=150, width =600)
+    lb4 =Label(fr2, text = "Project 2020", font=("Algerian", 24))
+    lb4.place(x=700,y=230)
+    lb4.configure(bg="white")
 
-    b5 = Button(fr2, text="submit", font=("Arial ", 20), width=20, command=upload_text)
-    b5.place(x=40, y=700)
+    b5 = Button(fr2, text="About", font=("Arial ", 20), width=20, command=about)
+    b5.place(x=1100, y=230)
+    b5.configure(bg = "white")
+
+    b3 = Button(fr2, text="Image", font=("Arial ", 20), width=20, command=image)
+    b3.place(x=100, y=400)
+    b3.configure(bg = "white")
+
+    b4 = Button(fr2, text="Video", font=("Arial ", 20), width=20, command=video)
+    b4.place(x=100, y=550)
+    b4.configure(bg = "white")
+
+    b6 = Button(fr2, text="Flash News", font=("Arial ", 20), width=20, command=text)
+    b6.place(x=600, y=550)
+    b6.configure(bg = "white")
+
+    b7 = Button(fr2, text="PDF", font=("Arial ", 20), width=20, command=pdf)
+    b7.place(x=600, y=400)
+    b7.configure(bg = "white")
+
+    b8 = Button(fr2, text="Control", font=("Arial ", 20), width=20, command=control)
+    b8.place(x=1100, y=400)
+    b8.configure(bg = "white")
 
     b2 = Button(fr2, text="logout", fg='white', font=("Arial ", 20), width=20, command=home)
     b2.place(x=1040, y=750)
     b2.configure(bg="green")
 
-    b6 = Button(fr2, text="Change Password", fg='white', font=("Arial ", 20), width=20, command=change_password)
-    b6.place(x=40, y=760)
-    b6.configure(bg="green")
+    b8 = Button(fr2, text="Change Password", fg='white', font=("Arial ", 20), width=20, command=change_password)
+    b8.place(x=40, y=760)
+    b8.configure(bg="green")
 
 
 # function to check username and password
@@ -288,7 +526,7 @@ def user_register():
     c.execute("INSERT INTO username VALUES (:name, :password)",
                  {
                   'name': Name,
-                     'password':password
+                  'password':password
                  })
     conn.commit()
     conn.close()
@@ -478,12 +716,13 @@ def confirm_exit():
 
 # Creating home screen [GUI]
 def home():
+    global image1
     fr = Frame(window, bg = "white", bd=2, width=1920, height=1080)
     fr.place(x=1, y=1)
 
-    #img = ImageTk.PhotoImage(Image.open("download.png"))
-    #label = Label(fr, image=img)
-    #label.place(x=640, y=200)
+    image1 = ImageTk.PhotoImage(Image.open("download.png"))
+    label = Label(fr, image=image1)
+    label.place(x=640, y=250)
 
     lb1 = Label(fr, text="Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
                 width=70, height=2)
@@ -520,12 +759,10 @@ global password_list
 
 global path
 
-path = 'C:/xampp/htdocs/Project/project.db'
+path = 'C:/xampp/htdocs/Project/project2.db'
 
 user_list = []
 password_list = []
-"""video_address = []
-video_flag = ['False']"""
 # displaying home screen at start
 home()
 
