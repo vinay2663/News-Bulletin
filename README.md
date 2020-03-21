@@ -7,3 +7,5 @@ Graphical user interface is created at the server end using tkinter python modul
 Webpages are created to display the uploaded content and stored in server that can be accesed using ip-address when both server and client are connected to the same network
 
 In this project raspberry pi3 is used as it has inbuilt wifi and TV is used as display device
+
+Client folder should be present in lan server
