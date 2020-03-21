@@ -1,0 +1,1 @@
+Assets required for webpage
