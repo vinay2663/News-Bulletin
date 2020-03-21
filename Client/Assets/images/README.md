@@ -1,0 +1,1 @@
+images required for webpage
