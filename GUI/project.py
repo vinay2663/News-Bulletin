@@ -6,6 +6,13 @@ import sqlite3
 import os
 import shutil
 from tkinter import messagebox
+import time
+
+
+def get_time():
+    t = time.localtime()
+    current_time = time.strftime("%H:%M:%S", t)
+    return current_time
 
 
 def update_password():
@@ -13,7 +20,7 @@ def update_password():
     conn = sqlite3.connect(path)
     c = conn.cursor()
 
-    conn.execute("""UPDATE username set password = :new_pass
+    c.execute("""UPDATE username set password = :new_pass
      where password = :old_password""",
                  {
                      'new_pass': new_pass,
@@ -116,9 +123,13 @@ def upload_p():
     conn = sqlite3.connect(path)
     c = conn.cursor()
 
-    c.execute("INSERT INTO pdf VALUES (:name)",
+    time1 = get_time()
+
+    c.execute("INSERT INTO pdf VALUES (:name, :time, :uploader)",
               {
-                  'name': name
+                  'name': name,
+                  'time': time1,
+                  'uploader': Login_Name
               })
 
     conn.commit()
@@ -135,10 +146,14 @@ def upload_vi():
     conn = sqlite3.connect(path)
     c = conn.cursor()
 
-    c.execute("INSERT INTO video VALUES (:name, :des)",
+    time1 = get_time()
+
+    c.execute("INSERT INTO video VALUES (:name, :des, :time, :uploader)",
               {
                   'name': name,
-                  'des' : des
+                  'des' : des,
+                  'time': time1,
+                  'uploader': Login_Name
               })
 
     conn.commit()
@@ -156,10 +171,14 @@ def upload_im():
     conn = sqlite3.connect(path)
     c = conn.cursor()
 
-    c.execute("INSERT INTO image VALUES (:name, :description)",
+    time1 = get_time()
+
+    c.execute("INSERT INTO image VALUES (:name, :description, :time, :uploader)",
               {
                   'name': name,
-                  'description': des
+                  'description': des,
+                  'time': time1,
+                  'uploader': Login_Name
               })
 
     conn.commit()
@@ -415,6 +434,10 @@ def flag(key):
     conn.commit()
     conn.close()
 
+    lb3 = Label(window, text=key+' is selected', font=("TimesNewRoman", 30))
+    lb3.place(x=100, y=650)
+    lb3.configure(bg="white", fg= "Blue")
+
 
 def get_admin():
     # connecting to database
@@ -461,6 +484,7 @@ def remove_admin(admin_name):
 
     conn.commit()
     conn.close()
+
     return
 
 
@@ -496,6 +520,208 @@ def control():
     b4 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
     b4.place(x=600, y=550)
     b4.configure(bg="white")
+
+    b5 = Button(fr2, text="Logs", font=("Arial ", 20), width=20, command=Logs)
+    b5.place(x=1100, y=400)
+    b5.configure(bg="white")
+
+    return
+
+
+def Logs():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text=" Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    lb3 = Label(fr2, text=" Logs ", font=("TimesNewRoman", 30))
+    lb3.place(x=100, y=270)
+    lb3.configure(bg="white", fg="Blue")
+
+    b3 = Button(fr2, text="Image", font=("Arial ", 20), width=20, command=Image_logs)
+    b3.place(x=100, y=400)
+    b3.configure(bg="white")
+
+    b2 = Button(fr2, text="Video", font=("Arial ", 20), width=20, command=Video_logs)
+    b2.place(x=600, y=400)
+    b2.configure(bg="white")
+
+    b1 = Button(fr2, text="PDF", font=("Arial ", 20), width=20, command=PDF_logs)
+    b1.place(x=100, y=550)
+    b1.configure(bg="white")
+
+    b4 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b4.place(x=600, y=550)
+    b4.configure(bg="white")
+
+    return
+
+
+def get_logs(key):
+    if key == 'image':
+        conn = sqlite3.connect(path)
+        c = conn.cursor()
+        c.execute("SELECT *, oid  FROM image")
+        records = c.fetchall()
+        for record in records:
+            image_log_box.insert(INSERT,'Name: '+record[0])
+            image_log_box.insert(INSERT, '\n')
+
+            image_log_box.insert(INSERT, 'Description: ' + record[1])
+
+            image_log_box.insert(INSERT, 'Time: ' + record[2])
+            image_log_box.insert(INSERT, '\n')
+
+            image_log_box.insert(INSERT, 'Uploader: ' + record[3])
+            image_log_box.insert(INSERT, '\n')
+            image_log_box.insert(INSERT, '\n')
+
+        conn.commit()
+        conn.close()
+
+    if key == 'video':
+        conn = sqlite3.connect(path)
+        c = conn.cursor()
+        c.execute("SELECT *, oid  FROM video")
+        records = c.fetchall()
+
+        for record in records:
+            video_log_box.insert(INSERT, 'Name: ' + record[0])
+            video_log_box.insert(INSERT, '\n')
+
+            video_log_box.insert(INSERT, 'Description: ' + record[1])
+
+            video_log_box.insert(INSERT, 'Time: ' + record[2])
+            video_log_box.insert(INSERT, '\n')
+
+            video_log_box.insert(INSERT, 'Uploader: ' + record[3])
+            video_log_box.insert(INSERT, '\n')
+            video_log_box.insert(INSERT, '\n')
+
+        conn.commit()
+        conn.close()
+
+    if key == 'pdf':
+        conn = sqlite3.connect(path)
+        c = conn.cursor()
+        c.execute("SELECT *, oid  FROM pdf")
+        records = c.fetchall()
+
+        for record in records:
+            pdf_log_box.insert(INSERT, 'Name: ' + record[0])
+            pdf_log_box.insert(INSERT, '\n')
+
+            pdf_log_box.insert(INSERT, 'Time: ' + record[1])
+            pdf_log_box.insert(INSERT, '\n')
+
+            pdf_log_box.insert(INSERT, 'Uploader: ' + record[2])
+            pdf_log_box.insert(INSERT, '\n')
+            pdf_log_box.insert(INSERT, '\n')
+
+        conn.commit()
+        conn.close()
+
+    return
+
+
+def Image_logs():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text=" Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    lb3 = Label(fr2, text=" Logs ", font=("TimesNewRoman", 30))
+    lb3.place(x=100, y=270)
+    lb3.configure(bg="white", fg="Blue")
+
+    global image_log_box
+
+    image_log_box = Text(fr2, fg="black", font=("arial", 20), relief='solid')
+    image_log_box.place(x=100, y=350, width=600, height=400)
+
+    b4 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b4.place(x=1000, y=550)
+    b4.configure(bg="white")
+
+    get_logs('image')
+
+    return
+
+
+def Video_logs():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text=" Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    lb3 = Label(fr2, text=" Logs ", font=("TimesNewRoman", 30))
+    lb3.place(x=100, y=270)
+    lb3.configure(bg="white", fg="Blue")
+
+    global video_log_box
+
+    video_log_box = Text(fr2, fg="black", font=("arial", 20), relief='solid')
+    video_log_box.place(x=100, y=350, width=600, height=400)
+
+    b4 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b4.place(x=1000, y=550)
+    b4.configure(bg="white")
+
+    get_logs('video')
+
+    return
+
+
+def PDF_logs():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text=" Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    lb3 = Label(fr2, text=" Logs ", font=("TimesNewRoman", 30))
+    lb3.place(x=100, y=270)
+    lb3.configure(bg="white", fg="Blue")
+
+    global pdf_log_box
+
+    pdf_log_box = Text(fr2, fg="black", font=("arial", 20), relief='solid')
+    pdf_log_box.place(x=100, y=350, width=600, height=400)
+
+    b4 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
+    b4.place(x=1000, y=550)
+    b4.configure(bg="white")
+
+    get_logs('pdf')
+
+    return
 
 
 def allow_privileges():
@@ -966,7 +1192,7 @@ def home():
     fr = Frame(window, bg = "white", bd=2, width=1920, height=1080)
     fr.place(x=1, y=1)
 
-    image1 = ImageTk.PhotoImage(Image.open("download.png"))
+    image1 = ImageTk.PhotoImage(Image.open("Assets/image.png"))
     label = Label(fr, image=image1)
     label.place(x=640, y=250)
 
@@ -997,7 +1223,7 @@ window = Tk()
 window.geometry('1920x1080')
 window.title("News Bulletin")
 window.configure(bg="white")
-window.iconbitmap('download.ico')
+window.iconbitmap('Assets/logo.ico')
 
 # globalizing list to store username and password for easy access
 global user_list
@@ -1006,7 +1232,7 @@ global admin_list
 
 global path
 
-path = 'C:/xampp/htdocs/Project/project2.db'
+path = 'C:/xampp/htdocs/Project/project.db'
 
 user_list = []
 password_list = []
