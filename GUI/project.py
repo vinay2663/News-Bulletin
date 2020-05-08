@@ -7,6 +7,7 @@ import os
 import shutil
 from tkinter import messagebox
 import time
+import platform
 
 
 def get_time():
@@ -197,7 +198,7 @@ def upload_i():
         head, tail = os.path.split(window.filename)
         n_i.delete(0, END)
         n_i.insert(0, tail)
-        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/Uploads/images')
+        shutil.copy(window.filename, image_src)
         img = ImageTk.PhotoImage(Image.open(window.filename))
         label = Label(window, image=img)
         label.place(x=950, y=250, width = 500, height= 400)
@@ -212,7 +213,7 @@ def upload_v():
         head, tail = os.path.split(window.filename)
         n_v.delete(0, END)
         n_v.insert(0, tail)
-        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/Uploads/videos')
+        shutil.copy(window.filename, video_src)
 
 
 # function to upload a pdf
@@ -224,14 +225,14 @@ def upload_pdf():
         head, tail = os.path.split(window.filename)
         n_p.delete(0, END)
         n_p.insert(0, tail)
-        shutil.copy(window.filename, 'C:/xampp/htdocs/Project/Assets/Uploads/pdf')
+        shutil.copy(window.filename, pdf_src)
 
 
 # function to upload a text
 def upload_text():
     circular = t_t.get("1.0", END)
     t_t.delete("1.0", END)
-    file1 = open(r"C:/xampp/htdocs/Project/Assets/Uploads/circular.txt", "r+")
+    file1 = open(text_src, "r+")
     file1.truncate(0)
     file1.write(circular)
     file1.close()
@@ -1217,6 +1218,33 @@ def home():
     b3.place(x=1100, y=600)
     b3.configure(bg="green")
 
+    return
+
+
+def get_platform():
+    global path
+    global image_src
+    global video_src
+    global video_src
+    global pdf_src
+    global text_src
+
+    if platform.system() == 'Windows':
+        path = r'C:/xampp/htdocs/Project/project.db'
+        image_src = r'C:\xampp\htdocs\Project\Assets\Uploads\images'
+        video_src = r'C:\xampp\htdocs\Project\Assets\Uploads\videos'
+        pdf_src = r'C:\xampp\htdocs\Project\Assets\Uploads\pdf'
+        text_src = r'C:\xampp\htdocs\Project\Assets\Uploads\circular.txt'
+
+    if platform.system() == 'Linux':
+        path = r'/opt/lampp/htdocs/Project/project.db'
+        image_src = r'/opt/lampp/htdocs/Project/Assets/Uploads/images'
+        video_src = r'/opt/lampp/htdocs/Project/Assets/Uploads/videos'
+        pdf_src = r'/opt/lampp/htdocs/Project/Assets/Uploads/pdf'
+        text_src = r'/opt/lampp/htdocs/Project/Assets/Uploads/circular.txt'
+
+    return
+
 
 # creating main window
 window = Tk()
@@ -1230,13 +1258,11 @@ global user_list
 global password_list
 global admin_list
 
-global path
-
-path = 'C:/xampp/htdocs/Project/project.db'
-
 user_list = []
 password_list = []
 admin_list = []
+
+get_platform()
 
 # displaying home screen at start
 home()
