@@ -8,6 +8,7 @@ import shutil
 from tkinter import messagebox
 import time
 import platform
+from tkinter import font
 
 
 def get_time():
@@ -421,6 +422,50 @@ def about():
                 width=70, height=2)
     lb2.place(x=1, y=100)
 
+    lb3 = Label(fr2, text = "News Bulletin ", font="Algerian 26")
+    lb3.place(x=40,y=230)
+    lb3.configure(bg="white")
+
+    lb4 = Label(fr2, text = "Project 2020", font="Algerian 24")
+    lb4.place(x=700,y=230)
+    lb4.configure(bg="white")
+
+    lb5 = Label(fr2, text="Developed by", font='Times 32 italic')
+    lb5.place(x=40, y=320)
+    lb5.configure(bg="white")
+
+    lb6 = Label(fr2, text="Vinay S", font='Times 28 italic')
+    lb6.place(x=40, y=400)
+    lb6.configure(bg="white")
+
+    lb7 = Label(fr2, text="Sachin Reddy", font='Times 28 italic')
+    lb7.place(x=40, y=450)
+    lb7.configure(bg="white")
+
+    lb8 = Label(fr2, text="Sumit Singh", font='Times 28 italic')
+    lb8.place(x=40, y=500)
+    lb8.configure(bg="white")
+
+    lb9 = Label(fr2, text="Syed Mohammad Rahil", font='Times 28 italic')
+    lb9.place(x=40, y=550)
+    lb9.configure(bg="white")
+
+    lba = Label(fr2, text="Co-ordinators", font='Times 32 italic')
+    lba.place(x=700, y=320)
+    lba.configure(bg="white")
+
+    lb6 = Label(fr2, text=" Satish Sir [ Project Guide ] ", font='Times 28 italic')
+    lb6.place(x=700, y=400)
+    lb6.configure(bg="white")
+
+    lb7 = Label(fr2, text=" Sahana Mam ", font='Times 28 italic')
+    lb7.place(x=700, y=450)
+    lb7.configure(bg="white")
+
+    b5 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=home)
+    b5.place(x=1100, y=650)
+    b5.configure(bg = "white")
+
 
 def flag(key):
     # connecting to database
@@ -489,6 +534,116 @@ def remove_admin(admin_name):
     return
 
 
+def reset_db_2():
+    name = 'v'
+    password = '1'
+    flag = 'original'
+
+    if os.path.exists(path):
+        os.remove(path)
+
+    conn = sqlite3.connect(path)
+
+    c = conn.cursor()
+
+    c.execute("""CREATE TABLE username(
+                 name text,
+                 password text
+                 )
+        """)
+
+    c.execute("""CREATE TABLE video(
+                 name text,
+                 description text,
+                 time text,
+                 uploader text
+                 )
+        """)
+
+    c.execute("""CREATE TABLE pdf(
+                 name text,
+                 time text,
+                 uploader text
+                 )
+        """)
+
+    c.execute("""CREATE TABLE image(
+                name text,
+                description text,
+                time text,
+                uploader text
+                )
+        """)
+
+    c.execute("""CREATE TABLE admin(
+                  name text
+                  ) """)
+
+    c.execute("INSERT INTO admin VALUES (:name)",
+              {
+                  'name': name
+              })
+
+    c.execute("INSERT INTO username VALUES (:name, :password)",
+              {
+                  'name': name,
+                  'password': password
+              })
+
+    c.execute("""CREATE TABLE flag(
+                  status text
+                  ) """)
+
+    c.execute("INSERT INTO flag VALUES (:status)",
+              {
+                  'status': flag
+              })
+
+    conn.commit()
+    conn.close()
+    
+    file1 = open(text_src, "r+")
+    file1.truncate(0)
+
+    lb3 = Label(window, text=" Database is reset please delete uploaded contents at " + reset_path, font=("TimesNewRoman", 24))
+    lb3.place(x=100, y=650)
+    lb3.configure(bg="white", fg= "Blue")
+
+    return
+
+
+def reset_db():
+    fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
+    fr2.place(x=1, y=1)
+
+    lb1 = Label(fr2, text=" Srinivas Institute of technology ", fg="white", font=("TimesNewRoman", 30), relief='sunken',
+                width=70, height=2)
+    lb1.place(x=1, y=10)
+    lb1.configure(bg="dark blue")
+
+    lb2 = Label(fr2, text="Department of Electronics and Communication Engineering  ", font=("TimesNewRoman", 30),
+                width=70, height=2)
+    lb2.place(x=1, y=100)
+
+    lb3 = Label(fr2, text=" Resetting the progrsm leads to deletion of every record in the database  ", font=("TimesNewRoman", 24))
+    lb3.place(x=100, y=270)
+    lb3.configure(bg="white", fg= "Blue")
+
+    lb3 = Label(fr2, text=" Proceed with caution !!! ", font=("TimesNewRoman", 24))
+    lb3.place(x=100, y=350)
+    lb3.configure(bg="white", fg= "Red")
+
+    b3 = Button(fr2, text="Continue", font=("Arial ", 20), width=20, command=reset_db_2)
+    b3.place(x=100, y=500)
+    b3.configure(bg="white")
+
+    b4 = Button(fr2, text="BACK", font=("Arial ", 20), width=20, command=control)
+    b4.place(x=100, y=750)
+    b4.configure(bg="white")
+
+    return
+
+
 def control():
     fr2 = Frame(window, bg="white", bd=2, width=1920, height=1080)
     fr2.place(x=1, y=1)
@@ -525,6 +680,13 @@ def control():
     b5 = Button(fr2, text="Logs", font=("Arial ", 20), width=20, command=Logs)
     b5.place(x=1100, y=400)
     b5.configure(bg="white")
+
+    get_admin()
+
+    if check(admin_list, Login_Name):
+        b9 = Button(fr2, text="RESET", font=(" ", 20), width=20, command=reset_db)
+        b9.place(x=1100, y=550)
+        b9.configure(bg = "white")
 
     return
 
@@ -651,7 +813,7 @@ def Image_logs():
 
     global image_log_box
 
-    image_log_box = Text(fr2, fg="black", font=("arial", 20), relief='solid')
+    image_log_box = Text(fr2, fg="black", font=("arial", 20), relief='solid', wrap = WORD)
     image_log_box.place(x=100, y=350, width=600, height=400)
 
     b4 = Button(fr2, text="Back", font=("Arial ", 20), width=20, command=main_screen)
@@ -1228,6 +1390,7 @@ def get_platform():
     global video_src
     global pdf_src
     global text_src
+    global reset_path
 
     if platform.system() == 'Windows':
         path = r'C:/xampp/htdocs/Project/project.db'
@@ -1235,6 +1398,7 @@ def get_platform():
         video_src = r'C:\xampp\htdocs\Project\Assets\Uploads\videos'
         pdf_src = r'C:\xampp\htdocs\Project\Assets\Uploads\pdf'
         text_src = r'C:\xampp\htdocs\Project\Assets\Uploads\circular.txt'
+        reset_path = r'C:\xampp\htdocs\Project\Assets\Uploads\ '
 
     if platform.system() == 'Linux':
         path = r'/opt/lampp/htdocs/Project/project.db'
@@ -1242,6 +1406,7 @@ def get_platform():
         video_src = r'/opt/lampp/htdocs/Project/Assets/Uploads/videos'
         pdf_src = r'/opt/lampp/htdocs/Project/Assets/Uploads/pdf'
         text_src = r'/opt/lampp/htdocs/Project/Assets/Uploads/circular.txt'
+        reset_path = r'/opt/lampp/htdocs/Project/Assets/Uploads/ '
 
     return
 
@@ -1251,7 +1416,8 @@ window = Tk()
 window.geometry('1920x1080')
 window.title("News Bulletin")
 window.configure(bg="white")
-window.iconbitmap('Assets/logo.ico')
+img = PhotoImage(file='Assets/image.png')
+window.tk.call('wm', 'iconphoto', window._w, img)
 
 # globalizing list to store username and password for easy access
 global user_list
